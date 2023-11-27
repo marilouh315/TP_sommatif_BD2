@@ -7,10 +7,20 @@
 * Date : 27 novembre 2023
 */
 
-DROP USER IF EXISTS 'hdvelhUsager';
+USE hdvelh_tpsommatif; 
 
-CREATE USER 'hdvelhUsager'@'%' IDENTIFIED BY 'mdp';
+DROP USER IF EXISTS 'hdvelhUsager2'; 
 
-GRANT SELECT, INSERT, UPDATE, DELETE ON hdvelh_tpsommatif.* TO 'hdvelhUsager'@'localhost';
+CREATE USER 'hdvelhUsager2' IDENTIFIED BY 'mdp';
 
-FLUSH PRIVILEGES;
+GRANT SELECT ON hdvelh_tpsommatif.armes TO 'hdvelhUsager2';
+GRANT SELECT ON hdvelh_tpsommatif.disciplines_kai TO 'hdvelhUsager2';
+GRANT SELECT, INSERT, UPDATE, DELETE ON hdvelh_tpsommatif.fiche_personnage TO 'hdvelhUsager2';
+GRANT SELECT ON hdvelh_tpsommatif.liens_chapitres TO 'hdvelhUsager2';
+GRANT SELECT, INSERT, DELETE ON hdvelh_tpsommatif.inventaire_armes TO 'hdvelhUsager2';
+GRANT SELECT, INSERT, DELETE ON hdvelh_tpsommatif.inventaire_disciplines TO 'hdvelhUsager2';
+GRANT SELECT ON hdvelh_tpsommatif.livres TO 'hdvelhUsager2';
+GRANT SELECT, INSERT, UPDATE, DELETE ON hdvelh_tpsommatif.sauvegardes TO 'hdvelhUsager2';
+GRANT SELECT ON hdvelh_tpsommatif.chapitres TO 'hdvelhUsager2';
+GRANT SELECT, INSERT, DELETE ON hdvelh_tpsommatif.joueur TO 'hdvelhUsager2';
+GRANT SELECT, INSERT, DELETE ON hdvelh_tpsommatif.sac_a_dos TO 'hdvelhUsager2';

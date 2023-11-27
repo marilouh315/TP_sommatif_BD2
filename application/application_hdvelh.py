@@ -1,7 +1,7 @@
 import sys
 import mysql.connector
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QComboBox, QListView, QPushButton, QWidget, QListWidgetItem, QMessageBox, QSpinBox
-# Importer la classe Ui_MainWindow du fichier demo.py
+# Importer la classe Ui_MainWindow du fichier hdvelh2.py
 from hdvelh2 import Ui_MainWindow
 
 # En paramêtre de la classe MainWindow on va hériter des fonctionnalités
@@ -29,24 +29,27 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.pushButton_supprimer.clicked.connect(self.supprimer_sauvegarde)
 
         self.connection = mysql.connector.connect(
-            user='hdvelhUsager',
+            user='hdvelhUsager2',
             password='mdp',
             host='localhost',
             database='hdvelh_tpsommatif'
         )
 
+    #Fonction qui se déclenche lors de l'ouverture de la fenêtre
     def showEvent(self, event):
         self.ajouter_disciplines_comboBox()
         self.ajouter_armes_comboBox()
         self.ajouter_livres_comboBox()
         self.ajouter_joueurs_comboBox()
 
+    #Fonction qui se déclenche lors de la fermeture de la fenêtre
     def closeEvent(self, event):
         self.connection.close()
         event.accept()
 
 
 ##FONCTIONS DEBUT (showEvent)###########################################################################################################################################
+    #Fonction qui ajoute les disciplines de la base de donnée dans le comboBox des disciplines
     def ajouter_disciplines_comboBox(self):
         try:            
             cursor = self.connection.cursor()
@@ -60,6 +63,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         except mysql.connector.Error as err:
             print(f"Erreur MySQL : {err}")
 
+    #Fonction qui vérifie les ajouts de l'usager (Si l'usager ne choisit pas un doublon ou s'il en a choisi plus que 5)
+    #et ajoute les disciplines choisies dans un QListWidget
     def ajouter_discipline_listWidget(self):
         if self.listWidget_disciplines.count() >= 5:
             QMessageBox.warning(self, 'LIMITE ATTEINTE', 'Vous ne pouvez pas ajouter plus de 5 disciplines.')
@@ -77,11 +82,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             item = QListWidgetItem(discipline_selectionnee)
             self.listWidget_disciplines.addItem(item)
 
-        
-
-
-
-
+    #Fonction qui ajoute les armes de la base de donnée dans le comboBox des armes
     def ajouter_armes_comboBox(self):
         try:            
             cursor = self.connection.cursor()
@@ -95,6 +96,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         except mysql.connector.Error as err:
             print(f"Erreur MySQL : {err}")
 
+    #Fonction qui vérifie les ajouts de l'usager (Si l'usager ne choisit pas un doublon ou s'il en a choisi plus que 5)
+    #et ajoute les armes choisies dans un QListWidget
     def ajouter_arme_listWidget(self):
         if self.listWidget_armes.count() >= 2:
             QMessageBox.warning(self, 'LIMITE ATTEINTE', 'Vous ne pouvez pas ajouter plus de 2 armes.')
@@ -112,10 +115,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             item = QListWidgetItem(arme_selectionnee)
             self.listWidget_armes.addItem(item)
 
-
-
-
-
+    #Fonction qui ajoute les livres de la base de donnée dans le comboBox des livres
     def ajouter_livres_comboBox(self):
         try:            
             cursor = self.connection.cursor()
@@ -129,7 +129,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         except mysql.connector.Error as err:
             print(f"Erreur MySQL : {err}")
 
-
+    #Fonction qui ajoute les joueurs entrés dans le comboBox des sauvegardes
     def ajouter_joueurs_comboBox(self):
         try:
             cursor = self.connection.cursor()
@@ -145,10 +145,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 
 
-
 ######FIN FONCTIONS DÉBUT###################################################################################################################################
 
 #####FONCTIONS DE CHAPITRE##########################################################################################################################################
+    #Fonction qui affiche les informations du livre et le premier chapitre de celui-ci
+    #Déclenchée par un click selon le livre sélectionné
     def commencerHistoire(self):
         self.label_histoireChapitre_2.clear()
         self.comboBox_histoire.clear()
@@ -177,8 +178,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         except mysql.connector.Error as err:
             print(f"Erreur MySQL : {err}")
 
-
-
+    #Fonction qui affiche le premier chapitre (1) seulement d'un livre sélectionné dans le comboBox des choix de chapitre 
     def afficher_premierChapitre(self, titre_livre_selectionne):
         try:
             cursor = self.connection.cursor()
@@ -194,7 +194,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         except mysql.connector.Error as err:
             print(f"Erreur MySQL : {err}")
 
-
+    #Fonction qui affiche les informations du livre selon la position du joueur dans le livre et affiche ces informations
     def cest_parti(self):
         chapitre_selectionne = self.comboBox_histoire.currentText()
         livre_selectionne = self.comboBox_livre.currentText()
@@ -216,11 +216,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         valeur_chapitreActuel = self.label_histoireChapitre_2.text()
                         self.afficher_chapitresDestination(valeur_chapitreActuel)
 
-
             except mysql.connector.Error as err:
                 print(f"Erreur MySQL : {err}")
 
-
+    #Fonction qui affiche les choix de chapitre selon la position du joueur dans le livre (selon son chapitre)
     def afficher_chapitresDestination(self, valeur_chapitreActuel):
         self.comboBox_histoire.clear()
         try:
@@ -233,16 +232,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 for resultat in resultats:
                     self.comboBox_histoire.addItem(str(resultat[0]))
 
-
         except mysql.connector.Error as err:
             print(f"Erreur MySQL : {err}")
 
+
+
 ###FIN CHAPITRES#########################################################################################################################################
 
-
-
-
 ###SAUVEGARDE############################################################################################################################################
+    #Fonction qui se déclenche lorsqu'on clique sur le bouton Nouvelle Partie
     def nouvellePartie(self):
         self.clear_all_widgets()
         nomSaisi = self.lineEdit_nom.text()
@@ -255,9 +253,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.insererJoueur(nomSaisi)
             self.initialisation_inserts(nomSaisi)
 
-
+    #Fonction qui clear les widgets voulus
     def clear_all_widgets(self):
-        # Vider tous les widgets
         self.textBrowser_histoire.clear()
         self.comboBox_histoire.clear()
         self.listWidget_disciplines.clear()
@@ -268,6 +265,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.spinBox_bourse_sac.clear()
         self.label_histoireChapitre_2.clear()
 
+    #Fonction qui se déclenche lorsqu'on clique sur le bouton sauvegarde et qui effectue des updates de mes tables voulues
     def sauvegarder(self):
         v_nom_joueur_grand = self.label_nomGrand.text()
         if v_nom_joueur_grand == "Nom personnage" or v_nom_joueur_grand == "":
@@ -303,7 +301,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.update_sauvegarde(v_chapitreActuel, v_titreLivre, v_nom_joueur)
         QMessageBox.warning(self, 'SAUVEGARDE', 'Sauvegarde réussie!')
 
-
+    #Fonction qui se déclenche lorsqu'on charge la sauvegarde (clique sur le bouton Charger). Il affiche les données selon le nom du joueur (nom de la sauvegarde)
     def chargerSauvegarde(self):
         nom_sauvegarde = self.comboBox_sauvegarde.currentText()
         self.label_nomGrand.setText(nom_sauvegarde)
@@ -355,18 +353,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 _ins_bourse = self.obtenir_bourse(id_sac_a_dos)
                 self.spinBox_bourse_sac.setValue(_ins_bourse or 0)
 
-
             cursor.close()
 
         except mysql.connector.Error as err:
             print(f"Erreur MySQL : {err}")
 
 
+
 ###FIN SAUVEGARDE############################################################################################################################################
 
-
-
 ###DEBUT OBTENTION VALEURS TEXTES DES ID############################################################################################################################################
+    #Fonction qui obtient le no de chapitre selon le id_chapitre
+    #@id_chapitre Le id d'un chapitre
     def obtenir_no_chapitre(self, id_chapitre):
         try:
             cursor = self.connection.cursor()
@@ -383,7 +381,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         except mysql.connector.Error as err:
             print(f"Erreur MySQL : {err}")
 
-
+    #Fonction qui obtient le titre d'un livre selon le id d'un livre
+    #@id_livre Le id d'un livre
     def obtenir_titre_livre(self, id_livre):
         try:
             cursor = self.connection.cursor()
@@ -400,7 +399,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         except mysql.connector.Error as err:
             print(f"Erreur MySQL : {err}")
 
-
+    #Fonction qui obtient le texte d'un chapitre selon le id d'un chapitre et le titre d'un livre
+    #@id_chapitre Le id d'un chapitre 
+    #@titre_livre Le titre d'un livre
     def obtenir_texte_chapitre(self, id_chapitre, titre_livre):
         try:
             cursor = self.connection.cursor()
@@ -416,8 +417,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         except mysql.connector.Error as err:
             print(f"Erreur MySQL : {err}")
 
-
-
+    #Fonction qui obtient un objet selon le id d'un sac à dos
+    #@id_sac Le id d'un sac à dos
     def obtenir_objet(self, id_sac):
         try:
             cursor = self.connection.cursor()
@@ -434,7 +435,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         except mysql.connector.Error as err:
             print(f"Erreur MySQL : {err}")
 
-
+    #Fonction qui obtient un repas selon le id d'un sac à dos
+    #@id_sac Le id d'un sac à dos
     def obtenir_repas(self, id_sac):
         try:
             cursor = self.connection.cursor()
@@ -451,7 +453,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         except mysql.connector.Error as err:
             print(f"Erreur MySQL : {err}")
 
-
+    #Fonction qui obtient des objets spéciaux selon le id d'un sac à dos
+    #@id_sac Le id d'un sac à dos
     def obtenir_objspec(self, id_sac):
         try:
             cursor = self.connection.cursor()
@@ -468,7 +471,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         except mysql.connector.Error as err:
             print(f"Erreur MySQL : {err}")
 
-
+    #Fonction qui obtient la valeur de la bourse selon le id d'un sac à dos
+    #@id_sac Le id d'un sac à dos
     def obtenir_bourse(self, id_sac):
         try:
             cursor = self.connection.cursor()
@@ -489,13 +493,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         except mysql.connector.Error as err:
             print(f"Erreur MySQL : {err}")
 
+
+
 ###FIN OBTENTION VALEURS TEXTES DES ID############################################################################################################################################
 
-
-
 ###DEBUT APPELS FONCTIONS / PROCEDURE############################################################################################################################################
+    #Fonction qui insère un joueur en utilisant la procédure insert_joueur
+    #@nom_joueur Le nom d'un joueur
     def insererJoueur(self, nom_joueur):
-
         try:
             cursor = self.connection.cursor()
 
@@ -519,10 +524,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         except mysql.connector.Error as err:
             print(f"Erreur MySQL : {err}")
 
-
-
-
-
+    #Fonction qui effectue des inserts avec des nulls selon le nom d'un joueur (nom de sauvegarde)
+    #@nom_joueur Le nom d'un joueur
     def initialisation_inserts(self, nom_joueur):
         try:
             cursor = self.connection.cursor()
@@ -535,7 +538,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         except mysql.connector.Error as err:
             print(f"Erreur MySQL : {err}")
 
-
+    #Fonction qui update les informations (si reçues) d'un sac à dos selon le nom d'un joueur
+    #@_objet Objet du sac à dos
+    #@_objet Repas du sac à dos
+    #@_objet Objet spécial du sac à dos
+    #@_objet Valeur de la bourse du sac à dos
+    #@nom_joueur Le nom d'un joueur
     def update_sac(self, _objet, _repas, _objets_speciaux, _bourse, _nom_joueur):
         try:
             cursor = self.connection.cursor()
@@ -556,8 +564,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         except mysql.connector.Error as err:
             print(f"Erreur MySQL : {err}")
 
-
-
+    #Fonction qui update les informations (si reçues) de la fiche personnage, soit le id de l'inventaire selon le nom d'un joueur
+    #Le id inventaire doit avoir le même id que le joueur sélectionné
+    #@nom_joueur Le nom d'un joueur
     def update_id_inventaire(self, _nom_joueur):
         try:
             cursor = self.connection.cursor()
@@ -569,14 +578,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             cursor.execute(select_fiche, (_id_joueur,)) 
             _id_fiche = cursor.fetchone()[0]  
 
-
-            # Vérifier si l'ID du joueur existe dans la table inventaire_general
             select_id_inventaire = 'SELECT id_inventaire FROM inventaire_general WHERE id_inventaire = %s'
             cursor.execute(select_id_inventaire, (_id_joueur,))
             id_inventaire_exists = cursor.fetchone()
 
             if not id_inventaire_exists:
-                # Si l'ID n'existe pas, ajoutez-le à la table inventaire_general
                 insert_inventaire = 'INSERT INTO inventaire_general (id_inventaire) VALUES (%s)'
                 cursor.execute(insert_inventaire, (_id_joueur,))
                 self.connection.commit()
@@ -588,7 +594,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         except mysql.connector.Error as err:
             print(f"Erreur MySQL : {err}")
 
-
+    #Fonction qui update les disciplines de la table inventaire_disciplines selon le nom de joueur
+    #@_nom_disciplines Le nom des disciplines
+    #@nom_joueur Le nom d'un joueur
     def update_disciplines(self, _nom_disciplines, _nom_joueur):
         try:
             cursor = self.connection.cursor()
@@ -609,9 +617,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         except mysql.connector.Error as err:
             print(f"Erreur MySQL : {err}")
 
-
-
-
+    #Fonction qui update les armes de la table inventaire_armes selon le nom de joueur
+    #@_nom_armes Le nom des armes
+    #@nom_joueur Le nom d'un joueur
     def update_armes(self, _nom_armes, _nom_joueur):
         try:
             cursor = self.connection.cursor()
@@ -632,7 +640,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         except mysql.connector.Error as err:
             print(f"Erreur MySQL : {err}")
 
-
+    #Fonction qui update les sauvegardes selon le nom de joueur
+    #@_no_chapitre Le no de chapitre
+    #@_titre_livre Le titre du livre
+    #@nom_joueur Le nom d'un joueur
     def update_sauvegarde(self, _no_chapitre, _titre_livre, _nom_joueur):
         try:
             cursor = self.connection.cursor()
@@ -644,9 +655,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 _id_joueur = resultat_joueur[0]
             else:
                 _id_joueur = ""
-                
-
-
+            
             query_select_id_livre = 'SELECT id_livre FROM livres WHERE titre_livre = %s'
             cursor.execute(query_select_id_livre, (_titre_livre,))
             resultat_livre = cursor.fetchone()
@@ -671,7 +680,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         except mysql.connector.Error as err:
             print(f"Erreur MySQL : {err}")
 
-
+    #Fonction qui supprime la sauvegarde selon le nom du joueur (nom de la sauvegarde)
     def supprimer_sauvegarde(self):
         sauvegarde_selectionnee = self.comboBox_sauvegarde.currentText()
         try:
@@ -697,8 +706,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         except mysql.connector.Error as err:
             print(f"Erreur MySQL : {err}")
-
-
 
 app = QApplication(sys.argv)
 
