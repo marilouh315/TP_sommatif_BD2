@@ -1,3 +1,11 @@
+/*
+* Fichier de création des tables de la BD hdvelh_tpsommatif pour le travail pratique en BD 2
+* 
+* Fichier : hdvelh_creation_tables.sql
+* Auteur : Marilou Héon
+* Langage : SQL
+* Date : 27 novembre 2023
+*/
 
 DROP DATABASE IF EXISTS hdvelh_tpsommatif;
 CREATE DATABASE hdvelh_tpsommatif;
@@ -56,8 +64,8 @@ CREATE TABLE IF NOT EXISTS fiche_personnage (
     id_fiche_personnage INTEGER PRIMARY KEY AUTO_INCREMENT,
     id_inventaire INTEGER,
     id_sac_a_dos INTEGER,
-    FOREIGN KEY (id_sac_a_dos) REFERENCES sac_a_dos (id_sac_a_dos),
-    FOREIGN KEY (id_inventaire) REFERENCES inventaire_general (id_inventaire)
+    FOREIGN KEY (id_sac_a_dos) REFERENCES sac_a_dos (id_sac_a_dos) ON DELETE CASCADE,
+    FOREIGN KEY (id_inventaire) REFERENCES inventaire_general (id_inventaire) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS sauvegardes (
@@ -66,24 +74,24 @@ CREATE TABLE IF NOT EXISTS sauvegardes (
 	id_livre INTEGER,
 	id_fiche_personnage INTEGER,
 	id_joueur INTEGER NOT NULL,
-	FOREIGN KEY (id_chapitre) REFERENCES chapitres (id_chapitre),
-	FOREIGN KEY (id_livre) REFERENCES livres (id_livre),
-	FOREIGN KEY (id_fiche_personnage) REFERENCES fiche_personnage (id_fiche_personnage), 
-	FOREIGN KEY (id_joueur) REFERENCES joueur (id_joueur)
+	FOREIGN KEY (id_chapitre) REFERENCES chapitres (id_chapitre) ON DELETE CASCADE,
+	FOREIGN KEY (id_livre) REFERENCES livres (id_livre) ON DELETE CASCADE,
+	FOREIGN KEY (id_fiche_personnage) REFERENCES fiche_personnage (id_fiche_personnage) ON DELETE CASCADE, 
+	FOREIGN KEY (id_joueur) REFERENCES joueur (id_joueur) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS inventaire_disciplines (
     id_inventaire_discipline INTEGER PRIMARY KEY AUTO_INCREMENT,
     id_discipline INTEGER,
-    FOREIGN KEY (id_inventaire_discipline) REFERENCES inventaire_general (id_inventaire),
-    FOREIGN KEY (id_discipline) REFERENCES disciplines_kai (id_discipline)
+    FOREIGN KEY (id_inventaire_discipline) REFERENCES inventaire_general (id_inventaire) ON DELETE CASCADE,
+    FOREIGN KEY (id_discipline) REFERENCES disciplines_kai (id_discipline) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS inventaire_armes (
     id_inventaire_arme INTEGER PRIMARY KEY AUTO_INCREMENT,
     id_arme INTEGER,
-    FOREIGN KEY (id_inventaire_arme) REFERENCES inventaire_general (id_inventaire),
-    FOREIGN KEY (id_arme) REFERENCES armes (id_arme)
+    FOREIGN KEY (id_inventaire_arme) REFERENCES inventaire_general (id_inventaire) ON DELETE CASCADE,
+    FOREIGN KEY (id_arme) REFERENCES armes (id_arme) ON DELETE CASCADE
 );
 
 

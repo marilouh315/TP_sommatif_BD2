@@ -1,3 +1,12 @@
+/*
+* Fichier de création des INSERT INTO de la table liens_chapitres 
+*  
+* Fichier : hdvelh_insert_lien_chapitre.sql
+* Auteur : Marilou Héon
+* Langage : SQL
+* Date : 27 novembre 2023
+*/
+
 USE hdvelh_tpsommatif;
 
 INSERT IGNORE INTO liens_chapitres (no_chapitre_origine, no_chapitre_destination) VALUES (1, 85);

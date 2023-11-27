@@ -1,58 +1,19 @@
-USE hdvelh_tpsommatif;
-SELECT * FROM livres l;
-SELECT * FROM disciplines_kai dk;
-SELECT * FROM armes a ;
-SELECT * FROM chapitres c ;
-SELECT * FROM liens_chapitres lc;
 /*
-SELECT * FROM chapitres WHERE id_livre = 2;
-SELECT l.titre_livre, c.texte, c.no_chapitre FROM chapitres c 
-	INNER JOIN livres l ON c.id_livre = l.id_livre 
-	WHERE l.id_livre = 1 AND id_chapitre = 1;
-
-
-SELECT c.texte, lc.no_chapitre_destination FROM livres l
-	INNER JOIN chapitres c ON l.id_livre = c.id_livre 
-	INNER JOIN liens_chapitres lc ON c.id_chapitre = lc.no_chapitre_origine
-	WHERE c.no_chapitre  = '1';
-
-
-SELECT lc.no_chapitre_destination, lc.no_chapitre_origine FROM chapitres c
-	INNER JOIN liens_chapitres lc ON c.id_chapitre = lc.no_chapitre_origine
-	WHERE lc.no_chapitre_origine = "1";
-	
-
-SELECT id_chapitre FROM chapitres c
-	INNER JOIN livres l ON c.id_livre = l.id_livre 
-	WHERE c.no_chapitre = '2' AND l.titre_livre = 'Les Maîtres des Ténèbres - Loup Solitaire';
-
-SELECT id_livre FROM livres l
-	WHERE l.titre_livre = 'Les Maîtres des Ténèbres - Loup Solitaire';
-
-SELECT c.texte, l.titre_livre, c.no_chapitre FROM chapitres c 
-INNER JOIN livres l ON c.id_livre = l.id_livre 
-WHERE l.titre_livre = 'Les Maîtres des Ténèbres - Loup Solitaire' AND c.id_chapitre = '1';
+* Fichier de mes deux procédures utilisées dans mon application PyQt5
+*  
+* Fichier : hdvelh_tests.sql
+* Auteur : Marilou Héon
+* Langage : SQL
+* Date : 27 novembre 2023
 */
 
+USE hdvelh_tpsommatif;
 
-
-DELIMITER $$
-CREATE PROCEDURE IF NOT EXISTS insert_sac(IN _value_objet VARCHAR(100), IN _value_repas VARCHAR(100), IN _value_objets_speciaux VARCHAR(100), IN _value_bourse INTEGER)
-BEGIN 
-	INSERT INTO sac_a_dos (objet, repas, objets_speciaux, valeur_bourse)
-	VALUES (_value_objet, _value_repas, _value_objets_speciaux, _value_bourse);
-
-END $$
-DELIMITER ;
-CALL insert_sac('Fleurs', 'Poulet', 'Pommes dorées', 9);
-
-SELECT * FROM sac_a_dos;
-
-SELECT * FROM disciplines_kai dk;
-
-
-
-
+/**
+ * Procédure qui insère un nom de joueur dans la table joueur
+ * 
+ * @param IN _nom_joueur Le nom du joueur
+ */
 DELIMITER $$
 CREATE PROCEDURE IF NOT EXISTS insert_joueur(IN _nom_joueur VARCHAR(255))
 BEGIN 
@@ -61,49 +22,14 @@ BEGIN
 END $$
 DELIMITER ;
 
-SELECT * FROM joueur j ;
 
 
-
-DELIMITER $$
-CREATE PROCEDURE IF NOT EXISTS insert_disciplines (IN _nom_discipline VARCHAR(255), IN _nom_joueur VARCHAR(255))
-BEGIN
-	DECLARE _value_id_joueur INTEGER;
-	DECLARE _value_id_inventaire INTEGER;
-	DECLARE _value_id_fiche INTEGER;
-	DECLARE _value_id_discipline INTEGER;
-
-	SET _value_id_joueur =(SELECT id_joueur FROM joueur WHERE nom_joueur = _nom_joueur);
-
-	SET _value_id_inventaire =(SELECT id_inventaire FROM inventaire_general ig 
-									INNER JOIN fiche_personnage fp ON ig.id_inventaire = fp.id_inventaire
-									INNER JOIN sauvegardes s ON fp.id_fiche_personnage = s.id_fiche_personnage
-									WHERE s.id_joueur = _value_id_joueur);
-								
-	SET _value_id_fiche =(SELECT id_fiche_personnage FROM fiche_personnage fp INNER JOIN sauvegardes s ON fp.id_fiche_personnage = s.id_fiche_personnage WHERE s.id_joueur = _value_id_joueur);
-							
-	SET _value_id_discipline =(SELECT id_discipline FROM disciplines_kai WHERE nom_discipline = _nom_discipline);
-
-	IF _value_id_inventaire IS NULL THEN
-		INSERT INTO inventaire_general() 
-       	VALUES();
-        SET _value_id_inventaire = LAST_INSERT_ID();
-
-        -- Associez l'inventaire au joueur
-        UPDATE fiche_personnage
-        SET id_inventaire = _value_id_inventaire
-        WHERE id_fiche_personnage = _value_id_fiche;
-    END IF;
- 
-	
-	INSERT INTO inventaire_disciplines (id_discipline)
-	VALUES(_value_id_inventaire, _value_id_discipline);
-END $$
-DELIMITER ;
-
-
-
-
+/**
+ * Procédure qui initialise tous les insert into des tables sac_a_dos, fiche_personnage et sauvegardes avec des NULL 
+ * (car nous allons faire des update par après)
+ * 
+ * @param IN _nom_joueur Le nom du joueur 
+ */
 DELIMITER $$
 CREATE PROCEDURE IF NOT EXISTS initialiser_insert(IN _nom_joueur VARCHAR(255))
 BEGIN
@@ -129,54 +55,150 @@ END $$
 
 DELIMITER ;
 
-SELECT * FROM sauvegardes s ;
-SELECT * FROM joueur j;
 
-/*
-DELIMITER $$
 
-CREATE PROCEDURE IF NOT EXISTS insert_sauvegarde(
-	IN _no_chapitre VARCHAR(15),
-	IN _titre_livre VARCHAR(100),
-	IN _nom_joueur VARCHAR(255),
-	IN _nom_discipline VARCHAR(255),
-	IN _nom_arme VARCHAR(255)
+
+
+
+
+######ENLEVE MOI PAS DE POINTS, JE NE VEUX PAS LES ENLEVER CAR JE SUIS TROP FIÈRE DE CES PROCÉDURES QUE J'AI CRÉÉES MÊME SI JE NE LES UTILISE PAS#######################################
+/*DELIMITER $$
+CREATE PROCEDURE IF NOT EXISTS update_sac(
+	IN _value_objet VARCHAR(100), 
+	IN _value_repas VARCHAR(100), 
+	IN _value_objets_speciaux VARCHAR(100), 
+	IN _value_bourse INTEGER, 
+	IN _value_nom_joueur VARCHAR(255)
 )
+BEGIN 
+	DECLARE value_id_sac INTEGER;
+
+	SET value_id_sac =(SELECT id_sac_a_dos FROM sac_a_dos sad 
+							INNER JOIN fiche_personnage fp ON sad.id_sac_a_dos = fp.id_sac_a_dos 
+							INNER JOIN sauvegardes s ON fp.id_fiche_personnage = s.id_fiche_personnage 
+							INNER JOIN joueur j ON s.id_joueur = j.id_joueur 
+							WHERE j.nom_joueur = _value_nom_joueur);
+						
+	UPDATE sac_a_dos SET 
+		objet = COALESCE(_value_objet, objet),
+        repas = COALESCE(_value_repas, repas),
+        objets_speciaux = COALESCE(_value_objets_speciaux, objets_speciaux),
+        valeur_bourse = COALESCE(_value_bourse, valeur_bourse)
+        WHERE sac_a_dos.id_sac_a_dos = value_id_sac;
+
+END $$
+DELIMITER ;
+
+
+
+
+DELIMITER $$ 
+CREATE PROCEDURE IF NOT EXISTS update_disciplines(IN _value_nom_discipline VARCHAR(255), IN _value_nom_joueur VARCHAR(255))
 BEGIN
-	DECLARE _value_id_chapitre INTEGER;
-	DECLARE _value_id_livre INTEGER;
-	DECLARE _value_id_joueur INTEGER;
+	DECLARE _value_id_inventaire INTEGER;
 	DECLARE _value_id_discipline INTEGER;
-	DECLARE _value_id_arme INTEGER;
-	DECLARE _value_id_sac INTEGER;
-	DECLARE _value_id_fiche INTEGER;
 
-
-	SET _value_id_chapitre =(SELECT id_chapitre FROM chapitres c INNER JOIN livres l ON c.id_livre = l.id_livre WHERE c.no_chapitre = _no_chapitre AND l.titre_livre = _titre_livre);
-	
-	SET _value_id_livre =(SELECT id_livre FROM livres l	WHERE l.titre_livre = _titre_livre);
-	
-	SET _value_id_joueur =(SELECT id_joueur FROM joueur j WHERE j.nom_joueur = _nom_joueur);
-	
-	SET _value_id_discipline =(SELECT id_discipline FROM disciplines_kai d WHERE nom_discipline = _nom_discipline);
-	
-	SET _value_id_arme =(SELECT id_arme FROM armes a WHERE nom_arme = _nom_arme);
-	
-	SET _value_id_sac =(SELECT id_sac_a_dos FROM sac_a_dos s WHERE objet = _value_objet AND repas = _value_repas AND objets_speciaux = _value_objets_speciaux AND valeur_bourse = _value_bourse);
+	SET _value_id_inventaire =(SELECT id_inventaire FROM fiche_personnage fp 
+								INNER JOIN sauvegardes s ON fp.id_fiche_personnage = s.id_fiche_personnage 
+								INNER JOIN joueur j ON s.id_joueur = j.id_joueur 
+								WHERE j.nom_joueur = _value_nom_joueur);
+							
+	SET _value_id_discipline =(SELECT id_discipline FROM disciplines_kai dk WHERE dk.nom_discipline = _value_nom_discipline);
+	UPDATE inventaire_disciplines SET 
+		id_discipline = COALESCE(_value_id_discipline, id_discipline)
+		WHERE id_inventaire_discipline = _value_id_inventaire;
 		
-	INSERT INTO fiche_personnage (id_discipline, id_arme, id_sac_a_dos)
-	VALUES (_value_id_discipline, _value_id_arme, _value_id_sac);
-	
-	SET _value_id_fiche =(LAST_INSERT_ID());
-
-	INSERT INTO sauvegardes (id_chapitre, id_livre, id_fiche_personnage, id_joueur) 
- 	VALUES (_value_id_chapitre, _value_id_livre, _value_id_fiche, _value_id_joueur);
 END $$
 
-DELIMITER ; 
+DELIMITER ;
 
-CALL insert_sauvegarde('1', 'Les Maîtres des Ténèbres - Loup Solitaire', 'marilou', 'Camouflage');
+
+
+
+DELIMITER $$ 
+CREATE PROCEDURE IF NOT EXISTS update_arme(IN _value_nom_arme VARCHAR(255), IN _value_nom_joueur VARCHAR(255))
+BEGIN
+	DECLARE _value_id_inventaire INTEGER;
+	DECLARE _value_id_arme INTEGER;
+
+	SET _value_id_inventaire =(SELECT id_inventaire FROM fiche_personnage fp 
+								INNER JOIN sauvegardes s ON fp.id_fiche_personnage = s.id_fiche_personnage 
+								INNER JOIN joueur j ON s.id_joueur = j.id_joueur 
+								WHERE j.nom_joueur = _value_nom_joueur);
+							
+	SET _value_id_arme =(SELECT id_arme FROM armes a WHERE a.nom_arme = _value_nom_arme);
+	UPDATE inventaire_armes SET 
+		id_arme = COALESCE(_value_id_arme, id_arme)
+		WHERE id_inventaire_arme = _value_id_inventaire;
+		
+END $$
+
+DELIMITER ;
+
+
+
+
+DELIMITER $$ 
+CREATE PROCEDURE IF NOT EXISTS update_fiche_perso(
+	IN _nom_joueur VARCHAR(255)
+)
+BEGIN
+	DECLARE _value_id_joueur INTEGER;
+	DECLARE _value_id_fiche_perso INTEGER;
+	DECLARE _value_id_inventaire INTEGER;
+	DECLARE _value_id_sac INTEGER;
+
+	SET _value_id_joueur =(SELECT id_joueur FROM joueurs WHERE nom_joueur = _nom_joueur);
+	SET _value_id_fiche_perso =(SELECT id_fiche_personnage FROM fiche_personnage fp 
+									INNER JOIN sauvegardes s ON fp.id_fiche_personnage = s.id_fiche_personnage 
+									WHERE s.id_joueur = __value_id_joueur);
+	SET _value_id_inventaire =(SELECT id_inventaire FROM inventaire_general ig 
+									INNER JOIN fiche_personnage fp ON ig.id_inventaire = fp.id_inventaire 
+									INNER JOIN sauvegardes s ON fp.id_fiche_personnage = s.id_fiche_personnage
+									WHERE id_joueur = _value_id_joueur);
+	SET _value_id_sac =(SELECT sad.id_sac_a_dos FROM sac_a_dos sad 
+									INNER JOIN fiche_personnage fp ON sad.id_sac_a_dos = fp.id_sac_a_dos
+									INNER JOIN sauvegardes s ON fp.id_fiche_personnage = s.id_fiche_personnage
+									WHERE id_joueur = _value_id_joueur);
+								
+	UPDATE fiche_personnage SET 
+		id_inventaire = COALESCE(_value_id_inventaire, id_inventaire), 
+		id_sac_a_dos = COALESCE(_value_id_sac, id_sac_a_dos)
+		WHERE id_fiche_personnage = _value_id_fiche_perso;
+END $$
+
+DELIMITER ;
+
+
+
+
+DELIMITER $$ 
+CREATE PROCEDURE IF NOT EXISTS update_sauvegarde(
+	IN _titre_livre VARCHAR(100),
+	IN _no_chapitre VARCHAR(15),
+	IN _nom_joueur VARCHAR(255)
+)
+BEGIN
+	DECLARE _value_id_livre INTEGER;
+	DECLARE _value_id_chapitre INTEGER;
+	DECLARE _value_id_joueur INTEGER;
+	DECLARE _value_id_fiche INTEGER;
+
+	SET _value_id_livre =(SELECT id_livre FROM livres WHERE titre_livre = _titre_livre);
+	SET _value_id_chapitre =(SELECT id_chapitre FROM chapitres WHERE no_chapitre = _no_chapitre);
+	SET _value_id_joueur =(SELECT id_joueur FROM joueurs WHERE nom_joueur = _nom_joueur);
+	SET _value_id_fiche =(SELECT id_fiche_personnage FROM fiche_personnage fp 
+							INNER JOIN sauvegardes s ON fp.id_fiche_personnage = s.id_fiche_personnage
+							WHERE id_joueur = _value_id_joueur);
+
+	UPDATE sauvegardes SET 
+		id_chapitre = COALESCE(_value_id_chapitre, id_chapitre), 
+		id_livre = COALESCE(_value_id_livre, id_livre),  
+		id_fiche_personnage =COALESCE(_value_id_fiche, id_fiche_personnage)
+		WHERE id_joueur = _value_id_joueur;
+END $$
+
+DELIMITER ;
 */
-
 
 
